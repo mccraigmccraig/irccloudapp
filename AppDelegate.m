@@ -47,7 +47,9 @@
     title = [title substringToIndex:pipepos.location];
   }
 
-  [[[NSApplication sharedApplication] dockTile] setBadgeLabel:badge];
+  if (!badge) {
+    [[[NSApplication sharedApplication] dockTile] setBadgeLabel:badge];
+  }
   [window setTitle:title];
 }
 
@@ -87,6 +89,14 @@
 }
 
 - (void)createNotificationWithIcon:(NSString *)icon title:(NSString *)title message:(NSString *)message {
+  NSString *badge = [[[NSApplication sharedApplication] dockTile] badgeLabel];
+  if (!badge || [badge isEqualToString:@""]) {
+    badge = @"0";
+  }
+  int unread = [badge intValue] + 1;
+  NSString *newBadge = [NSString stringWithFormat:@"%d", unread];
+  [[[NSApplication sharedApplication] dockTile] setBadgeLabel:newBadge];
+	
   // this is a lazy implementation of notifications. works as long every notification in the
   // irccloud app calls notification.show() directly after creating it
   [GrowlApplicationBridge notifyWithTitle:title
